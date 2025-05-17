@@ -1,5 +1,6 @@
 import React from "react";
 import { Text, StyleSheet } from "react-native";
+import COLORS from "@src/config/ConfigColors";
 
 /*
   Base component for text components.
@@ -17,7 +18,7 @@ const styles = StyleSheet.create({
   text: {
     fontFamily: "System", // Or your custom font like 'Roboto', 'Inter', etc.
     fontSize: 16,
-    color: "#000",
+    color: COLORS.textPrimary,
   },
 });
 

@@ -9,7 +9,8 @@
       "@context/*": ["src/context/*"],
       "@config/*": ["src/config/*"],
       "@data/*": ["data/*"],
-      "@assets/*": ["assets/*"]
+      "@assets/*": ["assets/*"],
+      "@shared/*": ["../shared/*"]
     }
   }
 }

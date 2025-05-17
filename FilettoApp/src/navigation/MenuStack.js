@@ -8,6 +8,7 @@ import GameScreen from '@src/screens/GameScreen';
 
 import NAVIGATION from '@config/ConfigNavigation';
 import SPACING, { getMarginTop } from '@config/ConfigSpacing';
+import JoinScreen from '@src/screens/JoinScreen';
 
 const Stack = createStackNavigator();
 
@@ -38,6 +39,13 @@ const MenuStack = () => {
         options={{
           headerShown: false
         }}
+      />
+      <Stack.Screen 
+        name={NAVIGATION.SCREENS.JOIN}
+        component={JoinScreen} 
+        options={({ navigation }) => ({
+          header: () => <Header navigation={navigation} />,  // Custom header component
+        })}
       />
       <Stack.Screen 
         name={NAVIGATION.SCREENS.GAME}

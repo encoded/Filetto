@@ -1,15 +1,15 @@
 import React from 'react';
 import LayoutScreen from './LayoutScreen';
-import ButtonBase from '@components/base/ButtonBase';
+import DefaultButton from '@src/components/buttons/DefaultButton';
 
 import NAVIGATION from '@config/ConfigNavigation';
 
 export default function MenuScreen({ navigation }) {  
   return (
     <LayoutScreen>
-      <ButtonBase
-        text="Start"
-        onPress={()=>navigation.navigate(NAVIGATION.SCREENS.GAME)}
+      <DefaultButton
+        text="Join Game"
+        onPress={()=>navigation.navigate(NAVIGATION.SCREENS.JOIN)}
       />
     </LayoutScreen>
   );
