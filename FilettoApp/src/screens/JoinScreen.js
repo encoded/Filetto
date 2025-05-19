@@ -15,10 +15,6 @@ export default function JoinScreen({ navigation }) {
   const [inputName, setInputName] = useState('');
 
   useEffect(() => {
-    connectToHost();
-  }, []);
-
-  useEffect(() => {
     const unsubscribe = addMessageListener((data) => {
       if (data.type === SERVER_TO_ALL.GAME_START) {
         navigation.navigate(NAVIGATION.SCREENS.GAME, {
