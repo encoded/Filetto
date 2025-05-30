@@ -5,6 +5,7 @@ const CLIENT_TO_SERVER = {
   JOIN: 'JOIN',
   READY: 'READY',
   MAKE_MOVE: 'MAKE_MOVE',
+  SUBMIT_ANSWER: 'SUBMIT_ANSWER',
 };
 
 // Messages broadcasted to all clients
@@ -23,6 +24,8 @@ const SERVER_TO_ALL = {
   MOVE_MADE: 'MOVE_MADE',
   GAME_END: 'GAME_END',
   PLAYER_LEFT: 'PLAYER_LEFT',
+  QUESTION_START: 'QUESTION_START',
+  QUESTION_END: 'QUESTION_END'
 };
 
 module.exports = {

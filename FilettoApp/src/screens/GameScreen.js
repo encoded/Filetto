@@ -7,10 +7,11 @@ import DefaultButton from '@src/components/buttons/DefaultButton';
 import { useClient } from '@src/context/ClientContext';
 import { useGame } from '@src/context/GameContext';
 import { SERVER_TO_CLIENT, CLIENT_TO_SERVER, SERVER_TO_ALL } from '@shared/messages';
+import QuizCardTime from '@src/quiz/QuizCardTime';  // Assuming you have this component or equivalent
 
 export default function GameScreen({ route }) {
   const { board: initialBoard, currentTurn: initialTurn } = route.params;
-  const { addMessageListener, sendMessage } = useClient();
+  const { addMessageListener, sendMessage, ipAddress } = useClient();
   const { players, playerSymbol, opponentName } = useGame();
 
   const [board, setBoard] = useState(initialBoard);
@@ -19,27 +20,32 @@ export default function GameScreen({ route }) {
   const [opponentReady, setOpponentReady] = useState(false);
   const [iAmReady, setIAmReady] = useState(false);
 
+  // --- Quiz states ---
+  const [quizActive, setQuizActive] = useState(false);
+  const [question, setQuestion] = useState(null);
+  const [options, setOptions] = useState([]);
+  const [timeLimit, setTimeLimit] = useState(null);
+  const [correctIndex, setCorrectIndex] = useState(null);
+  const [hasAnswered, setHasAnswered] = useState(false);
+
   const isMyTurn = currentTurn === playerSymbol;
 
   useEffect(() => {
     const unsubscribe = addMessageListener((data) => {
+
+      const opponent = players?.find(p => p.symbol !== playerSymbol);
+
       switch (data.type) {
         case SERVER_TO_ALL.MOVE_MADE:
+          setQuizActive(false);
           setBoard(data.board);
           setCurrentTurn(data.currentTurn);
           break;
 
         case SERVER_TO_ALL.GAME_END:
           setBoard(data.board);
-          if (data.result === 'draw') {
-            setResult({ draw: true });
-          } else if (data.result === 'win') {
-            setResult({ winner: data.winner });
-          }
-          break;
-
-        case SERVER_TO_CLIENT.INVALID_MOVE:
-          // Optionally show feedback for invalid move
+          if (data.result === 'draw') setResult({ draw: true });
+          else if (data.result === 'win') setResult({ winner: data.winner });
           break;
 
         case SERVER_TO_ALL.PLAYER_LEFT:
@@ -55,23 +61,38 @@ export default function GameScreen({ route }) {
           break;
 
         case SERVER_TO_ALL.READY_STATUS:
-          const opponent = players?.find(p => p.symbol !== playerSymbol);
           const opponentIsReady = data.players?.find(
             p => p.symbol === opponent?.symbol && p.ready
           );
           setOpponentReady(!!opponentIsReady);
           break;
 
+        // --- Quiz related messages ---
+        case SERVER_TO_ALL.QUESTION_START:
+          setQuizActive(true);
+          setHasAnswered(false);
+          setQuestion(data.question);
+          setOptions(data.options);
+          setTimeLimit(data.timeLimit);
+          setCorrectIndex(null);
+          break;
+
+        case SERVER_TO_ALL.QUESTION_END:
+          setCorrectIndex(data.correctIndex);
+          break;
+
+        case SERVER_TO_CLIENT.INVALID_MOVE:
+          //Invalid move
         default:
           break;
       }
     });
 
-    return unsubscribe; // Cleanup on unmount
+    return unsubscribe;
   }, [addMessageListener, playerSymbol, players]);
 
   const handlePress = (row, col) => {
-    if (!isMyTurn || result) return;
+    if (!isMyTurn || result || quizActive) return;  // Don't allow moves during quiz
     const index = row * 3 + col;
     if (board[index]) return;
 
@@ -81,6 +102,13 @@ export default function GameScreen({ route }) {
   const handlePlayAgain = () => {
     sendMessage({ type: CLIENT_TO_SERVER.READY });
     setIAmReady(true);
+  };
+
+  const handleAnswer = (index) => {
+    if (!hasAnswered) {
+      setHasAnswered(true);
+      sendMessage({ type: CLIENT_TO_SERVER.SUBMIT_ANSWER, selectedIndex: index });
+    }
   };
 
   const renderCell = (row, col) => {
@@ -112,6 +140,7 @@ export default function GameScreen({ route }) {
     if (result?.draw) return 'Draw!';
     if (result?.left) return `${opponentName} left.\nGame ended.`;
     if (result?.winner) return `Winner: ${players?.find(p => p.name === result.winner)?.name || result.winner}`;
+    if (quizActive) return 'Answer the quiz question!';
     if (isMyTurn) return 'Your turn';
     return `${opponentName}'s turn`;
   };
@@ -119,38 +148,54 @@ export default function GameScreen({ route }) {
   return (
     <LayoutScreen>
       <View style={styles.container}>
-        <View style={styles.board}>
-          {[0, 1, 2].map(row => (
-            <View key={row} style={styles.row}>
-              {[0, 1, 2].map(col => renderCell(row, col))}
+
+        {/* Render quiz card if quiz is active */}
+        {quizActive && question ? (
+          <QuizCardTime
+            question={question}
+            options={options}
+            correctAnswer={correctIndex !== null ? options[correctIndex] : null}
+            onOptionChosen={handleAnswer}
+            timeLimitSeconds={!hasAnswered ? timeLimit : null}
+            style={{ maxHeight: '70%' }}
+          />
+        ) : (
+          <>
+            <View style={styles.board}>
+              {[0, 1, 2].map(row => (
+                <View key={row} style={styles.row}>
+                  {[0, 1, 2].map(col => renderCell(row, col))}
+                </View>
+              ))}
             </View>
-          ))}
-        </View>
 
-        <View style={styles.infoContainer}>
-          <TextBase style={styles.infoText}>{renderStatus()}</TextBase>
+            <View style={styles.infoContainer}>
+              <TextBase style={styles.infoText}>{renderStatus()}</TextBase>
 
-          {result && !result.left && (
-            <>
-              <DefaultButton
-                text="Play Again"
-                onPress={handlePlayAgain}
-                style={{ marginTop: 20 }}
-                disabled={iAmReady}
-              />
-              {opponentReady && !iAmReady && (
-                <TextBase style={styles.opponentReadyText}>
-                  {opponentName} wants to play another match. Click "Play Again" to start.
-                </TextBase>
+              {result && !result.left && (
+                <>
+                  <DefaultButton
+                    text="Play Again"
+                    onPress={handlePlayAgain}
+                    style={{ marginTop: 20 }}
+                    disabled={iAmReady}
+                  />
+                  {opponentReady && !iAmReady && (
+                    <TextBase style={styles.opponentReadyText}>
+                      {opponentName} wants to play another match. Click "Play Again" to start.
+                    </TextBase>
+                  )}
+                  {iAmReady && (
+                    <TextBase style={styles.opponentReadyText}>
+                      Waiting for {opponentName} to confirm the new match...
+                    </TextBase>
+                  )}
+                </>
               )}
-              {iAmReady && (
-                <TextBase style={styles.opponentReadyText}>
-                  Waiting for {opponentName} to confirm the new match...
-                </TextBase>
-              )}
-            </>
-          )}
-        </View>
+            </View>
+          </>
+        )}
+
       </View>
     </LayoutScreen>
   );

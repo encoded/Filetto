@@ -21,6 +21,9 @@ export const ClientProvider = ({ children }) => {
 
   const connectToHost = () => {
     const ws = new WebSocket('wss://filetto.onrender.com');
+    
+    // To test with local server
+    // const ws = new WebSocket('ws://192.168.0.87:3000');
 
     socketRef.current = ws;
 
