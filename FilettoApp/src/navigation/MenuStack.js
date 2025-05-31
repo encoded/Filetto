@@ -20,7 +20,9 @@ import LocalJoinGameScreen from '@src/screens/LocalJoinGameScreen';
 const Stack = createStackNavigator();
 
 // Header with button
+// Hiding the header for now
 const Header = ({ navigation }) => {
+  return null;
   return (
     <View style={{
       position: "absolute",
