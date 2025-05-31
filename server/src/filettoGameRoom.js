@@ -1,4 +1,3 @@
-const GameServer = require('./gameServer');
 const FilettoGame = require('@shared/filettoGame');
 const {
   CLIENT_TO_SERVER,
@@ -7,13 +6,10 @@ const {
 } = require('@shared/messages');
 
 const QuizManager = require('./quizManager');
-const quizData = require('@data/tempQuizData'); // your quiz questions
-const { getClientSanitisedIp } = require('@src/utils');
-const { fetchQuiz } = require('./quizProvider'); // adjust path as needed
+const { fetchQuiz } = require('./quizProvider');
 
-class FilettoGameServer extends GameServer {
-  constructor(port) {
-    super(port);
+class FilettoGameRoom {
+  constructor({ onEmpty } = {}) {
     this.players = [];
     this.game = new FilettoGame();
     this.gameStarted = false;
@@ -21,26 +17,11 @@ class FilettoGameServer extends GameServer {
     this.quizManager = null;
     this.quizMode = false;
     this.pendingMove = null;
+
+    this.onEmpty = onEmpty;
   }
 
-  onClientConnect(ws) {
-    const existingPlayer = this.players.find(p => p.ws === ws);
-    if (existingPlayer) {
-      ws.send(JSON.stringify({
-        type: SERVER_TO_CLIENT.JOIN_SUCCESS,
-        symbol: existingPlayer.symbol,
-        name: existingPlayer.name,
-      }));
-
-      if (this.players.length === 2) {
-        this.broadcastMessage({
-          type: SERVER_TO_ALL.WAITING_FOR_READY,
-          players: this.players.map(p => ({ name: p.name, ready: p.ready, symbol: p.symbol })),
-        });
-      }
-      return;
-    }
-
+  addClient(ws) {
     if (this.players.length >= 2) {
       ws.send(JSON.stringify({ type: SERVER_TO_CLIENT.ROOM_FULL }));
       ws.close();
@@ -50,7 +31,18 @@ class FilettoGameServer extends GameServer {
     ws.send(JSON.stringify({ type: SERVER_TO_CLIENT.WAITING_FOR_NAME }));
   }
 
-  onClientMessage(ws, data) {
+  removeClient(ws) {
+    this.players = this.players.filter(p => p.ws !== ws);
+    this.broadcastMessage({ type: SERVER_TO_ALL.PLAYER_LEFT });
+
+    if (this.players.length === 0 && typeof this.onEmpty === 'function') {
+      this.onEmpty();
+    }
+
+    this.resetGame();
+  }
+
+  handleMessage(ws, data) {
     switch (data.type) {
       case CLIENT_TO_SERVER.JOIN:
         this.handleJoin(ws, data.name);
@@ -71,14 +63,9 @@ class FilettoGameServer extends GameServer {
     }
   }
 
-  onClientDisconnect(ws) {
-    this.players = this.players.filter(p => p.ws !== ws);
-    this.broadcastMessage({ type: SERVER_TO_ALL.PLAYER_LEFT });
-    this.resetGame();
-  }
-
   handleJoin(ws, name) {
     if (this.players.find(p => p.ws === ws)) return;
+
     if (this.players.find(p => p.name === name)) {
       ws.send(JSON.stringify({ type: SERVER_TO_CLIENT.JOIN_ERROR, message: 'Name already taken' }));
       return;
@@ -141,7 +128,6 @@ class FilettoGameServer extends GameServer {
       return;
     }
 
-    // Store the move and start quiz before actually processing move
     this.pendingMove = { ws, cellIndex };
     this.startQuiz(ws);
   }
@@ -150,39 +136,35 @@ class FilettoGameServer extends GameServer {
     this.quizMode = true;
 
     try {
-      // add params here for the quiz
       const params = {
         numQuestions: 1,
         type: 'multiple',
         difficulty: 'easy',
-        category: 9, // General Knowledge
+        category: 9,
       };
       const question = await fetchQuiz(params);
 
       this.quizManager = new QuizManager(
-        this.wss,
+        this.getAllSockets(),
         question,
         ws,
         10,
         (passed) => {
           this.quizMode = false;
 
-          // Delay before continuing the game
           setTimeout(() => {
             if (passed) {
               const { ws: moveWs, cellIndex } = this.pendingMove;
               this.pendingMove = null;
               this.processApprovedMove(moveWs, cellIndex);
             } else {
-              // Switch turn manually
               const currentSymbol = this.game.getCurrentSymbol();
               const nextSymbol = currentSymbol === 'X' ? 'O' : 'X';
               this.game.currentSymbol = nextSymbol;
 
-              const board = this.game.getBoard();
               this.broadcastMessage({
                 type: SERVER_TO_ALL.MOVE_MADE,
-                board,
+                board: this.game.getBoard(),
                 currentTurn: nextSymbol,
               });
 
@@ -193,7 +175,7 @@ class FilettoGameServer extends GameServer {
 
               this.pendingMove = null;
             }
-          }, 2000); // Add small delay to show result
+          }, 2000);
         }
       );
 
@@ -252,6 +234,19 @@ class FilettoGameServer extends GameServer {
       players: this.players.map(p => ({ name: p.name, ready: p.ready, symbol: p.symbol })),
     });
   }
+
+  broadcastMessage(msgObj) {
+    const message = JSON.stringify(msgObj);
+    for (const player of this.players) {
+      if (player.ws.readyState === player.ws.OPEN) {
+        player.ws.send(message);
+      }
+    }
+  }
+
+  getAllSockets() {
+    return this.players.map(p => p.ws);
+  }
 }
 
-module.exports = FilettoGameServer;
+module.exports = FilettoGameRoom;

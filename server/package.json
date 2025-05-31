@@ -9,6 +9,7 @@
     "axios": "^1.9.0",
     "express": "^5.1.0",
     "module-alias": "^2.2.3",
+    "nanoid": "^5.1.5",
     "ws": "^8.18.1"
   },
   "_moduleAliases": {

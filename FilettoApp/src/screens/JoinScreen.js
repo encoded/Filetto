@@ -7,7 +7,7 @@ import TextInputBase from '@src/components/base/TextInputBase';
 import { useClient } from '@src/context/ClientContext';
 import { useGame } from '@src/context/GameContext';
 import { CLIENT_TO_SERVER, SERVER_TO_ALL } from '@shared/messages';
-import NAVIGATION from '@config/ConfigNavigation';
+import { NAVIGATION } from '@config/ConfigNavigation';
 
 export default function JoinScreen({ navigation }) {
   const { connectToHost, addMessageListener, sendMessage } = useClient();
@@ -35,7 +35,7 @@ export default function JoinScreen({ navigation }) {
     <LayoutScreen>
       {!isJoined ? (
         <View style={styles.inputContainer}>
-          <TextBase style={styles.text}>Enter your name:</TextBase>
+          <TextBase>Enter your name:</TextBase>
           <TextInputBase
             style={styles.inputText}
             placeholder="Your name"
@@ -59,14 +59,9 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+    rowGap: 24
   },
   inputText: {
-    width: 250,
-    marginBottom: 10,
-  },
-  text: {
-    fontSize: 18,
-    textAlign: 'center',
-    marginBottom: 10,
-  },
+    width: 250
+  }
 });

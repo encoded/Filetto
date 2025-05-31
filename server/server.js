@@ -1,5 +1,6 @@
-// @src/index.js
 require('module-alias/register');
-const FilettoGameServer = require('@src/filettoGameServer');
 
-new FilettoGameServer(3000);
+const RoomEnabledGameServer = require('./src/roomEnabledGameServer');
+
+const PORT = 3000;
+const server = new RoomEnabledGameServer(PORT);

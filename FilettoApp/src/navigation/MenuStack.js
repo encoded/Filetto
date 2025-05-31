@@ -6,9 +6,12 @@ import { createStackNavigator } from '@react-navigation/stack';
 import MenuScreen from '@src/screens/MenuScreen';
 import GameScreen from '@src/screens/GameScreen';
 
-import NAVIGATION from '@config/ConfigNavigation';
+import { NAVIGATION } from '@config/ConfigNavigation';
 import SPACING, { getMarginTop } from '@config/ConfigSpacing';
 import JoinScreen from '@src/screens/JoinScreen';
+import JoinOnlineScreen from '@src/screens/JoinOnlineScreen';
+import JoinLocalScreen from '@src/screens/JoinLocalScreen';
+import JoinFromLinkScreen from '@src/screens/JoinFromLinkScreen';
 
 const Stack = createStackNavigator();
 
@@ -39,6 +42,27 @@ const MenuStack = () => {
         options={{
           headerShown: false
         }}
+      />
+      <Stack.Screen 
+        name={NAVIGATION.SCREENS.JOIN_ONLINE}
+        component={JoinOnlineScreen} 
+        options={({ navigation }) => ({
+          header: () => <Header navigation={navigation} />,  // Custom header component
+        })}
+      />
+      <Stack.Screen 
+        name={NAVIGATION.SCREENS.JOIN_LOCAL}
+        component={JoinLocalScreen} 
+        options={({ navigation }) => ({
+          header: () => <Header navigation={navigation} />,  // Custom header component
+        })}
+      />
+      <Stack.Screen 
+        name={NAVIGATION.SCREENS.JOIN_FROM_LINK}
+        component={JoinFromLinkScreen} 
+        options={({ navigation }) => ({
+          header: () => <Header navigation={navigation} />,  // Custom header component
+        })}
       />
       <Stack.Screen 
         name={NAVIGATION.SCREENS.JOIN}

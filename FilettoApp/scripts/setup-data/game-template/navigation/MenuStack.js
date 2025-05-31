@@ -6,7 +6,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import MenuScreen from '@src/screens/MenuScreen';
 import GameScreen from '@src/screens/GameScreen';
 
-import NAVIGATION from '@config/ConfigNavigation';
+import { NAVIGATION } from '@config/ConfigNavigation';
 import SPACING, { getMarginTop } from '@config/ConfigSpacing';
 
 const Stack = createStackNavigator();
