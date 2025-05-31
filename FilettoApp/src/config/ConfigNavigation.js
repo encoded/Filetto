@@ -11,6 +11,6 @@ const NAVIGATION = {
 };
 
 // For testing on web add URL used when launching such as http://localhost:8081/ 
-const APP_ROOT = "https://encoded.github.io/Filetto/";
+const APP_ROOT = "https://filetto.piccolostudio.co.uk";
 
 export {NAVIGATION, APP_ROOT};

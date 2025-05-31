@@ -4,7 +4,8 @@ export default {
   expo: {
     name: 'Filetto',
     slug: 'Filetto',
-    scheme: 'filetto', // deep linking scheme (mobile)
+    scheme: 'filetto',
+    deepLinking: true,
     version: '1.0.0',
     orientation: 'portrait',
     icon: './assets/icon.png',
@@ -18,6 +19,10 @@ export default {
     platforms: ['ios', 'android', 'web'],
     ios: {
       supportsTablet: true,
+      bundleIdentifier: "com.piccolostudio.filetto",
+      infoPlist: {
+        ITSAppUsesNonExemptEncryption: false
+      }
     },
     android: {
       package: 'com.piccolostudio.filetto',
@@ -28,7 +33,7 @@ export default {
     },
     web: {
       favicon: './assets/favicon.png',
-      bundler: 'metro',
+      bundler: 'metro'
     },
     assetBundlePatterns: ['**/*'],
     extra: {

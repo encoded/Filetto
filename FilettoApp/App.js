@@ -7,15 +7,19 @@ import { ClientProvider } from '@src/context/ClientContext';
 import { GameProvider } from '@src/context/GameContext';
 import { OrientationProvider } from '@src/context/OrientationContext';
 import { NAVIGATION, APP_ROOT } from '@src/config/ConfigNavigation';
+import * as Linking from 'expo-linking';
 
-// const linking = {
-//   prefixes: [APP_ROOT, 'filetto://'], //for testing on mobile add expo URL found when launching: such as exp://192.168.0.87:8082/--/ 
-//   config: {
-//     screens: {
-//       [NAVIGATION.SCREENS.JOIN_FROM_LINK]: 'join-from-link'
-//     },
-//   },
-// };
+const linking = {
+  prefixes: [APP_ROOT, 'filetto://'],
+  config: {
+    screens: {
+      MenuScreen: '',
+      JoinFromLinkScreen: 'join-from-link',
+      JoinLocalScreen: 'join-local',
+      JoinOnlineScreen: 'join-online'
+    },
+  }
+};
 
 export default function App() {
   return (
@@ -24,8 +28,7 @@ export default function App() {
         <NetworkProvider>
           <ClientProvider>
             <GameProvider>
-              {/* <NavigationContainer linking={linking}> */}
-              <NavigationContainer>
+              <NavigationContainer linking={linking}>
                 <MenuStack/>
               </NavigationContainer>
             </GameProvider>

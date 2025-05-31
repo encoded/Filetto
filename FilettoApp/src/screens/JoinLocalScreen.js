@@ -28,7 +28,7 @@ export default function JoinLocalScreen() {
   useEffect(() => {
     const unsubscribe = addMessageListener((data) => {
       if (data.type === SERVER_TO_CLIENT.ROOM_CREATED) {
-        const newLink = `${APP_ROOT}join-from-link?room=${data.roomName}`;
+        const newLink = `${APP_ROOT}/join-from-link?room=${data.roomName}`;
         setCode(data.roomName);
         setLink(newLink);
       }

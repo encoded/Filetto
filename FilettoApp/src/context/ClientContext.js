@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { useNetwork } from '@src/context/NetworkContext';
+import TextBase from '@src/components/base/TextBase';
 
 import { CLIENT_TO_SERVER, SERVER_TO_CLIENT} from '@shared/messages'
 import { sendMessageToServer } from '@src/utils/networkUtils';
@@ -11,6 +12,11 @@ export const ClientProvider = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef(null);
   const listenersRef = useRef([]);
+
+  // Let's connect on app load
+  useEffect(() => {
+    connectToHost();
+  }, []);
 
   const addMessageListener = (callback) => {
     listenersRef.current.push(callback);
@@ -63,7 +69,15 @@ export const ClientProvider = ({ children }) => {
         sendMessage
       }}
     >
-      {children}
+      {!isConnected ? (
+        <TextBase style={{textAlign: 'center'}}>
+          Waiting for server connection...{'\n'}This should take only a few seconds.
+        </TextBase>
+      ) : (
+        <>
+          {children}
+        </>
+      )}
     </ClientContext.Provider>
   );
 };
