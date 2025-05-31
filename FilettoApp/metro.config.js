@@ -1,0 +1,23 @@
+const path = require('path');  // Import 'path' module
+const {getDefaultConfig} = require('@expo/metro-config');
+
+module.exports = (async () => {
+    const config = await getDefaultConfig(__dirname);
+
+    const {transformer, resolver} = config;
+
+    config.resolver = {
+        ...resolver,
+        extraNodeModules: {
+            shared: path.resolve(__dirname, '../shared'),
+        },
+    };
+    
+    // Add the parent directory to watchFolders to monitor changes outside the app directory
+    config.watchFolders = [
+      ...(config.watchFolders || []),  // Retain existing watch folders
+      path.resolve(__dirname, '../shared') //allow access to shared folder
+  ];
+
+    return config;
+})();

@@ -1,0 +1,43 @@
+{
+  "name": "filetto",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start --dev-client",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web",
+    "setup": "node ./scripts/project-setup.js",
+    "build:web-ghpages": "BASE_URL=/Filetto npx expo export --platform web",
+    "deploy:ghpages": "npm run build:web-ghpages && gh-pages --add --nojekyll -d dist"
+  },
+  "dependencies": {
+    "@expo/metro-runtime": "~5.0.4",
+    "@expo/vector-icons": "^14.1.0",
+    "@react-navigation/native": "^7.1.9",
+    "@react-navigation/stack": "^7.3.2",
+    "expo": "~53.0.0",
+    "expo-camera": "^16.1.6",
+    "expo-clipboard": "^7.1.4",
+    "expo-dev-client": "~5.1.8",
+    "expo-linking": "^7.1.5",
+    "expo-network": "^7.1.5",
+    "expo-status-bar": "~2.2.3",
+    "inquirer": "^8.2.6",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "react-native": "0.79.2",
+    "react-native-gesture-handler": "~2.24.0",
+    "react-native-qrcode-svg": "^6.3.15",
+    "react-native-reanimated": "~3.17.4",
+    "react-native-safe-area-context": "5.4.0",
+    "react-native-screens": "~4.10.0",
+    "react-native-web": "^0.20.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.20.0",
+    "gh-pages": "^6.3.0"
+  },
+  "private": true,
+  "homepage": "https://encoded.github.io/Filetto"
+}
