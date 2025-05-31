@@ -34,8 +34,10 @@ export default {
     extra: {
       eas: {
         projectId: '6633ce80-f0dd-47b3-97d7-0decf27150cf',
-      },
-      baseUrl: process.env.BASE_URL || '',
+      }
     },
+    experiments: {
+      baseUrl: process.env.BASE_URL || ''
+    }
   },
 };

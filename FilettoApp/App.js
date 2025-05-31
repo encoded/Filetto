@@ -8,14 +8,14 @@ import { GameProvider } from '@src/context/GameContext';
 import { OrientationProvider } from '@src/context/OrientationContext';
 import { NAVIGATION, APP_ROOT } from '@src/config/ConfigNavigation';
 
-const linking = {
-  prefixes: [APP_ROOT, 'filetto://'], //for testing on mobile add expo URL found when launching: such as exp://192.168.0.87:8082/--/ 
-  config: {
-    screens: {
-      [NAVIGATION.SCREENS.JOIN_FROM_LINK]: 'join-from-link'
-    },
-  },
-};
+// const linking = {
+//   prefixes: [APP_ROOT, 'filetto://'], //for testing on mobile add expo URL found when launching: such as exp://192.168.0.87:8082/--/ 
+//   config: {
+//     screens: {
+//       [NAVIGATION.SCREENS.JOIN_FROM_LINK]: 'join-from-link'
+//     },
+//   },
+// };
 
 export default function App() {
   return (
@@ -24,7 +24,8 @@ export default function App() {
         <NetworkProvider>
           <ClientProvider>
             <GameProvider>
-              <NavigationContainer linking={linking}>
+              {/* <NavigationContainer linking={linking}> */}
+              <NavigationContainer>
                 <MenuStack/>
               </NavigationContainer>
             </GameProvider>
