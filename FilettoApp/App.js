@@ -15,8 +15,6 @@ const linking = {
     screens: {
       MenuScreen: '',
       JoinFromLinkScreen: 'join-from-link',
-      JoinLocalScreen: 'join-local',
-      JoinOnlineScreen: 'join-online'
     },
   }
 };

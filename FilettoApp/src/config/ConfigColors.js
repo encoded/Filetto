@@ -1,8 +1,9 @@
 // temp colors
 const COLORS = {
-  background: '#495568',
+  // background: '#495568',
+  background: '#152238',
   primary: '#152238',
-  secondary: '#28a745',
+  secondary: '#FFD700',
   textPrimary: '#fff',
   button: '#152238',
   buttonDisabled: '#888',

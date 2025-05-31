@@ -9,9 +9,13 @@ import GameScreen from '@src/screens/GameScreen';
 import { NAVIGATION } from '@config/ConfigNavigation';
 import SPACING, { getMarginTop } from '@config/ConfigSpacing';
 import JoinScreen from '@src/screens/JoinScreen';
-import JoinOnlineScreen from '@src/screens/JoinOnlineScreen';
-import JoinLocalScreen from '@src/screens/JoinLocalScreen';
+import JoinOnlineScreen from '@src/screens/PlayOnlineScreen';
+import JoinLocalScreen from '@src/screens/PlayLocalScreen';
 import JoinFromLinkScreen from '@src/screens/JoinFromLinkScreen';
+import PlayOnlineScreen from '@src/screens/PlayOnlineScreen';
+import PlayLocalScreen from '@src/screens/PlayLocalScreen';
+import LocalHostGameScreen from '@src/screens/LocalHostGameScreen';
+import LocalJoinGameScreen from '@src/screens/LocalJoinGameScreen';
 
 const Stack = createStackNavigator();
 
@@ -44,15 +48,29 @@ const MenuStack = () => {
         }}
       />
       <Stack.Screen 
-        name={NAVIGATION.SCREENS.JOIN_ONLINE}
-        component={JoinOnlineScreen} 
+        name={NAVIGATION.SCREENS.PLAY_ONLINE}
+        component={PlayOnlineScreen} 
         options={({ navigation }) => ({
           header: () => <Header navigation={navigation} />,  // Custom header component
         })}
       />
       <Stack.Screen 
-        name={NAVIGATION.SCREENS.JOIN_LOCAL}
-        component={JoinLocalScreen} 
+        name={NAVIGATION.SCREENS.PLAY_LOCAL}
+        component={PlayLocalScreen} 
+        options={({ navigation }) => ({
+          header: () => <Header navigation={navigation} />,  // Custom header component
+        })}
+      />
+      <Stack.Screen 
+        name={NAVIGATION.SCREENS.LOCAL_HOST_GAME}
+        component={LocalHostGameScreen} 
+        options={({ navigation }) => ({
+          header: () => <Header navigation={navigation} />,  // Custom header component
+        })}
+      />
+      <Stack.Screen 
+        name={NAVIGATION.SCREENS.LOCAL_JOIN_GAME}
+        component={LocalJoinGameScreen} 
         options={({ navigation }) => ({
           header: () => <Header navigation={navigation} />,  // Custom header component
         })}

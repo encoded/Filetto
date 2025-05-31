@@ -1,3 +1,4 @@
+import COLORS from '@src/config/ConfigColors';
 import React, { useState } from 'react';
 import {
   Pressable,
@@ -32,7 +33,9 @@ export default function ImageButton({
       style={({ pressed }) => [
         styles.defaultButton,
         style,
-        { opacity: pressed ? 0.9 : 1 },
+        { 
+          opacity: pressed ? 0.9 : 1, 
+          borderColor: isHovered ? COLORS.secondary : "grey"},
       ]}
     >
       <ImageBackground
@@ -51,6 +54,7 @@ const styles = StyleSheet.create({
   defaultButton: {
     flex: 1,
     borderRadius: 8,
+    borderWidth: 4,
     overflow: 'hidden',
   },
   imageBackground: {

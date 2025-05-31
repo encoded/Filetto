@@ -11,7 +11,7 @@ import { useClient } from '@src/context/ClientContext';
 import { CLIENT_TO_SERVER } from '@shared/messages'
 import DefaultButton from '@src/components/buttons/DefaultButton';
 
-const JoinOnlineScreen = () => {
+const PlayOnlineScreen = () => {
   const { sendMessage} = useClient();
   const [roomName, setRoomName] = useState('');
   const navigation = useNavigation();
@@ -37,4 +37,4 @@ const JoinOnlineScreen = () => {
   );
 };
 
-export default JoinOnlineScreen;
+export default PlayOnlineScreen;

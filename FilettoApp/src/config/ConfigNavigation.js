@@ -2,8 +2,10 @@
 const NAVIGATION = {
   SCREENS: {
     MENU: "MenuScreen",
-    JOIN_LOCAL: "JoinLocalScreen",
-    JOIN_ONLINE: "JoinOnlineScreen",
+    PLAY_LOCAL: "JoinLocalScreen",
+    PLAY_ONLINE: "JoinOnlineScreen",
+    LOCAL_HOST_GAME: "LocalHostGameScreen",
+    LOCAL_JOIN_GAME: "LocalJoinGameScreen",
     JOIN_FROM_LINK: "JoinFromLinkScreen",
     JOIN: "JoinScreen",
     GAME: "GameScreen"
