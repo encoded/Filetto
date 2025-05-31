@@ -18,7 +18,7 @@ class RoomEnabledGameServer extends GameServer {
     if (data.type === CLIENT_TO_SERVER.CREATE_LOCAL_ROOM) {
       const { roomName, room } = this.roomManager.createRoomWithUniqueCode();
       this.clientRooms.set(ws, roomName);
-      room.addClient(ws);
+      room.addHost(ws); // we add host here
 
       ws.send(JSON.stringify({ type: SERVER_TO_CLIENT.ROOM_CREATED, roomName }));
       return;

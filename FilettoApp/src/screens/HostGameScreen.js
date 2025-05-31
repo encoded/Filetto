@@ -12,7 +12,7 @@ import QuizCardTime from '@src/quiz/QuizCardTime';
 import GameBoard from '@src/game/GameBoard';
 import GameStatusText from '@src/game/GameStatusText';
 
-export default function GameScreen({ route }) {
+export default function HostGameScreen({ route }) {
   const { board: initialBoard, currentTurn: initialTurn } = route.params;
   const { addMessageListener, sendMessage } = useClient();
   const { players, playerSymbol, opponentName } = useGame();
@@ -20,8 +20,6 @@ export default function GameScreen({ route }) {
   const [board, setBoard] = useState(initialBoard);
   const [currentTurn, setCurrentTurn] = useState(initialTurn);
   const [result, setResult] = useState(null);
-  const [opponentReady, setOpponentReady] = useState(false);
-  const [iAmReady, setIAmReady] = useState(false);
 
   // --- Quiz states ---
   const [quizActive, setQuizActive] = useState(false);
@@ -29,14 +27,9 @@ export default function GameScreen({ route }) {
   const [options, setOptions] = useState([]);
   const [timeLimit, setTimeLimit] = useState(null);
   const [correctIndex, setCorrectIndex] = useState(null);
-  const [hasAnswered, setHasAnswered] = useState(false);
-
-  const isMyTurn = currentTurn === playerSymbol;
 
   useEffect(() => {
     const unsubscribe = addMessageListener((data) => {
-      const opponent = players?.find(p => p.symbol !== playerSymbol);
-
       switch (data.type) {
         case SERVER_TO_ALL.MOVE_MADE:
           setQuizActive(false);
@@ -59,21 +52,10 @@ export default function GameScreen({ route }) {
           setBoard(data.board);
           setCurrentTurn(data.currentTurn);
           setResult(null);
-          setOpponentReady(false);
-          setIAmReady(false);
           break;
 
-        case SERVER_TO_ALL.READY_STATUS:
-          const opponentIsReady = data.players?.find(
-            p => p.symbol === opponent?.symbol && p.ready
-          );
-          setOpponentReady(!!opponentIsReady);
-          break;
-
-        // --- Quiz ---
         case SERVER_TO_ALL.QUESTION_START:
           setQuizActive(true);
-          setHasAnswered(false);
           setQuestion(data.question);
           setOptions(data.options);
           setTimeLimit(data.timeLimit);
@@ -84,33 +66,20 @@ export default function GameScreen({ route }) {
           setCorrectIndex(data.correctIndex);
           break;
 
-        case SERVER_TO_CLIENT.INVALID_MOVE:
         default:
           break;
       }
     });
 
     return unsubscribe;
-  }, [addMessageListener, playerSymbol, players]);
+  }, [addMessageListener]);
 
-  const handlePress = (row, col) => {
-    if (!isMyTurn || result || quizActive) return;
-    const index = row * 3 + col;
-    if (board[index]) return;
-
-    sendMessage({ type: CLIENT_TO_SERVER.MAKE_MOVE, cellIndex: index });
+  const handleHostStartGame = () => {
+    console.log("Whatever!");
   };
 
-  const handlePlayAgain = () => {
-    sendMessage({ type: CLIENT_TO_SERVER.READY });
-    setIAmReady(true);
-  };
-
-  const handleAnswer = (index) => {
-    if (!hasAnswered) {
-      setHasAnswered(true);
-      sendMessage({ type: CLIENT_TO_SERVER.SUBMIT_ANSWER, selectedIndex: index });
-    }
+  const handleSendQuestion = () => {
+    console.log("Whatever!");
   };
 
   return (
@@ -121,52 +90,41 @@ export default function GameScreen({ route }) {
             question={question}
             options={options}
             correctAnswer={correctIndex !== null ? options[correctIndex] : null}
-            onOptionChosen={handleAnswer}
-            timeLimitSeconds={!hasAnswered ? timeLimit : null}
+            timeLimitSeconds={timeLimit}
             style={{ maxHeight: '70%' }}
+            disabled // no answering for host
           />
         ) : (
           <>
             <GameBoard
               board={board}
-              onCellPress={handlePress}
-              disabled={!isMyTurn || result || quizActive}
+              onCellPress={() => {}} // no-op
+              disabled // fully non-interactive
             />
 
             <View style={styles.infoContainer}>
               <GameStatusText
                 result={result}
                 quizActive={quizActive}
-                isMyTurn={isMyTurn}
+                isMyTurn={false}
                 opponentName={opponentName}
                 players={players}
                 currentTurn={currentTurn}
                 playerSymbol={playerSymbol}
               />
-
-              {result && !result.left && (
-                <>
-                  <DefaultButton
-                    text="Play Again"
-                    onPress={handlePlayAgain}
-                    style={{ marginTop: 20 }}
-                    disabled={iAmReady}
-                  />
-                  {opponentReady && !iAmReady && (
-                    <TextBase style={styles.opponentReadyText}>
-                      {opponentName} wants to play another match. Click "Play Again" to start.
-                    </TextBase>
-                  )}
-                  {iAmReady && (
-                    <TextBase style={styles.opponentReadyText}>
-                      Waiting for {opponentName} to confirm the new match...
-                    </TextBase>
-                  )}
-                </>
-              )}
             </View>
           </>
         )}
+
+        {/* Host-only control panel */}
+        <View style={styles.hostPanel}>
+          <TextBase style={styles.hostTitle}>Host Controls</TextBase>
+          <DefaultButton
+            text="End Game"
+            onPress={handleHostStartGame}
+            style={{ marginVertical: 10 }}
+          />
+        </View>
       </View>
     </LayoutScreen>
   );
@@ -183,9 +141,16 @@ const styles = StyleSheet.create({
     marginTop: 40,
     alignItems: 'center',
   },
-  opponentReadyText: {
-    marginTop: 12,
-    fontSize: 16,
-    textAlign: 'center',
+  hostPanel: {
+    paddingVertical: 20,
+    borderTopWidth: 1,
+    borderColor: COLORS.GRAY,
+    width: '100%',
+    alignItems: 'center',
+  },
+  hostTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
   },
 });

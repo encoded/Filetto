@@ -7,6 +7,7 @@ import { CLIENT_TO_SERVER } from '@shared/messages';
 import DefaultButton from '@src/components/buttons/DefaultButton';
 import TextInputBase from '@src/components/base/TextInputBase';
 import LayoutScreen from './LayoutScreen';
+import { NAVIGATION } from '@src/config/ConfigNavigation';
 
 export default function LocalJoinGameScreen() {
   const { sendMessage } = useClient();
@@ -15,7 +16,7 @@ export default function LocalJoinGameScreen() {
 
   const handleJoin = () => {
     sendMessage({ type: CLIENT_TO_SERVER.JOIN_ROOM, roomName: roomCode });
-    navigation.navigate('Join'); // Adjust if needed
+    navigation.navigate(NAVIGATION.SCREENS.JOIN);
   };
 
   return (

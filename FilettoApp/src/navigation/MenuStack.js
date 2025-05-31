@@ -16,6 +16,7 @@ import PlayOnlineScreen from '@src/screens/PlayOnlineScreen';
 import PlayLocalScreen from '@src/screens/PlayLocalScreen';
 import LocalHostGameScreen from '@src/screens/LocalHostGameScreen';
 import LocalJoinGameScreen from '@src/screens/LocalJoinGameScreen';
+import HostGameScreen from '@src/screens/HostGameScreen';
 
 const Stack = createStackNavigator();
 
@@ -94,6 +95,13 @@ const MenuStack = () => {
       <Stack.Screen 
         name={NAVIGATION.SCREENS.GAME}
         component={GameScreen} 
+        options={({ navigation }) => ({
+          header: () => <Header navigation={navigation} />,  // Custom header component
+        })}
+      />
+      <Stack.Screen 
+        name={NAVIGATION.SCREENS.HOST_GAME}
+        component={HostGameScreen} 
         options={({ navigation }) => ({
           header: () => <Header navigation={navigation} />,  // Custom header component
         })}

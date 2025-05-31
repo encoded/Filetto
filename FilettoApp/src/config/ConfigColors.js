@@ -5,7 +5,7 @@ const COLORS = {
   primary: '#152238',
   secondary: '#FFD700',
   textPrimary: '#fff',
-  button: '#152238',
+  button: '#495568',
   buttonDisabled: '#888',
   playerOne: '#F4A7B9',
   playerTwo: '#A7C7E7'

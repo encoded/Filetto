@@ -11,6 +11,7 @@ const { fetchQuiz } = require('./quizProvider');
 class FilettoGameRoom {
   constructor({ onEmpty } = {}) {
     this.players = [];
+    this.hosts = [];
     this.game = new FilettoGame();
     this.gameStarted = false;
 
@@ -19,6 +20,12 @@ class FilettoGameRoom {
     this.pendingMove = null;
 
     this.onEmpty = onEmpty;
+  }
+
+  addHost(ws) {
+    if (!this.hosts.includes(ws)) {
+      this.hosts.push(ws);
+    }
   }
 
   addClient(ws) {
@@ -32,8 +39,17 @@ class FilettoGameRoom {
   }
 
   removeClient(ws) {
-    this.players = this.players.filter(p => p.ws !== ws);
-    this.broadcastMessage({ type: SERVER_TO_ALL.PLAYER_LEFT });
+    const wasPlayer = this.players.find(p => p.ws === ws);
+    const wasHostIndex = this.hosts.indexOf(ws);
+
+    if (wasPlayer) {
+      this.players = this.players.filter(p => p.ws !== ws);
+      this.broadcastMessage({ type: SERVER_TO_ALL.PLAYER_LEFT });
+    }
+
+    if (wasHostIndex !== -1) {
+      this.hosts.splice(wasHostIndex, 1);
+    }
 
     if (this.players.length === 0 && typeof this.onEmpty === 'function') {
       this.onEmpty();
@@ -237,15 +253,24 @@ class FilettoGameRoom {
 
   broadcastMessage(msgObj) {
     const message = JSON.stringify(msgObj);
-    for (const player of this.players) {
-      if (player.ws.readyState === player.ws.OPEN) {
-        player.ws.send(message);
+
+    const allConnections = [
+      ...this.players.map(p => p.ws),
+      ...this.hosts
+    ];
+
+    for (const ws of allConnections) {
+      if (ws.readyState === ws.OPEN) {
+        ws.send(message);
       }
     }
   }
 
   getAllSockets() {
-    return this.players.map(p => p.ws);
+    return [
+      ...this.players.map(p => p.ws),
+      ...this.hosts
+    ];
   }
 }
 

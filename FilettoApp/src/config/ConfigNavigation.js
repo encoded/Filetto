@@ -8,7 +8,8 @@ const NAVIGATION = {
     LOCAL_JOIN_GAME: "LocalJoinGameScreen",
     JOIN_FROM_LINK: "JoinFromLinkScreen",
     JOIN: "JoinScreen",
-    GAME: "GameScreen"
+    GAME: "GameScreen",
+    HOST_GAME: "HostGameScreen"
   }
 };
 
