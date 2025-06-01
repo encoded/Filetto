@@ -12,9 +12,11 @@ import { APP_ROOT, NAVIGATION } from '@src/config/ConfigNavigation';
 import LayoutScreen from './LayoutScreen';
 import COLORS from '@src/config/ConfigColors';
 import { useNavigation } from '@react-navigation/native';
+import { useOrientation } from '@src/context/OrientationContext';
 
 export default function LocalHostGameScreen() {
   const navigation = useNavigation();
+  const { isLandscape } = useOrientation();
   const { sendMessage, addMessageListener } = useClient();
   const { players, playerSymbol, opponentName } = useGame();
   const [code, setCode] = useState('');
@@ -58,24 +60,26 @@ export default function LocalHostGameScreen() {
           )}
         </View>
       </View>
-      <View style={styles.playerListContainer}>
-        <TextBase style={{fontSize: 72}}>PLAYERS</TextBase>
-        <View>
-          {players.length === 0 ? (
-            <TextBase>No players have joined yet.</TextBase>
-          ) : (
-            <FlatList
-              data={players}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={({ item }) => (
-                <TextBase>{item.name}</TextBase>
-              )}
-              scrollEnabled={players.length > 5} // scroll only if too many
-              contentContainerStyle={{ flexGrow: 0, rowGap: 10}} // critical: prevents stretching
-            />
-          )}
+      {isLandscape && (
+        <View style={styles.playerListContainer}>
+          <TextBase style={{ fontSize: 72 }}>PLAYERS</TextBase>
+          <View>
+            {players.length === 0 ? (
+              <TextBase>No players have joined yet.</TextBase>
+            ) : (
+              <FlatList
+                data={players}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({ item }) => (
+                  <TextBase>{item.name}</TextBase>
+                )}
+                scrollEnabled={players.length > 5}
+                contentContainerStyle={{ flexGrow: 0, rowGap: 10 }}
+              />
+            )}
+          </View>
         </View>
-      </View>
+      )}
     </LayoutScreen>
   );
 }

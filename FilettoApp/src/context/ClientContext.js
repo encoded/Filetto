@@ -4,6 +4,7 @@ import TextBase from '@src/components/base/TextBase';
 
 import { CLIENT_TO_SERVER, SERVER_TO_CLIENT} from '@shared/messages'
 import { sendMessageToServer } from '@src/utils/networkUtils';
+import LayoutScreen from '@src/screens/LayoutScreen';
 
 export const ClientContext = createContext();
 
@@ -70,9 +71,11 @@ export const ClientProvider = ({ children }) => {
       }}
     >
       {!isConnected ? (
-        <TextBase style={{textAlign: 'center'}}>
-          Waiting for server connection...{'\n'}This should take only a few seconds.
-        </TextBase>
+        <LayoutScreen>
+          <TextBase style={{textAlign: 'center'}}>
+            Waiting for server connection...{'\n'}This should take only a few seconds.
+          </TextBase>
+        </LayoutScreen>
       ) : (
         <>
           {children}
