@@ -32,11 +32,14 @@
     "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.10.0",
+    "react-native-svg": "15.11.2",
+    "react-native-svg-transformer": "^1.5.1",
     "react-native-web": "^0.20.0",
     "react-navigation": "^5.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@expo/metro-config": "^0.20.14",
     "gh-pages": "^6.3.0"
   },
   "private": true,

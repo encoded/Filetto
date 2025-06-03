@@ -10,11 +10,12 @@ import DefaultButton from '@src/components/buttons/DefaultButton';
 
 import { APP_ROOT, NAVIGATION } from '@src/config/ConfigNavigation';
 import LayoutScreen from './LayoutScreen';
-import COLORS from '@src/config/ConfigColors';
 import { useNavigation } from '@react-navigation/native';
 import { useOrientation } from '@src/context/OrientationContext';
+import cardStyles from '@src/styles/cardStyles';
 
-export default function LocalHostGameScreen() {
+
+export default function RoomSetupScreen() {
   const navigation = useNavigation();
   const { isLandscape } = useOrientation();
   const { sendMessage, addMessageListener } = useClient();
@@ -46,32 +47,34 @@ export default function LocalHostGameScreen() {
 
   return (
     <LayoutScreen style={styles.hostContainer}>
-      <View style={{flex: 1, alignItems: "center"}}>
-        <View style={[styles.hostCard, {borderColor: COLORS.secondary}]}>
-          <TextBase style={styles.label}>Share this code with friends:</TextBase>
-          <TextBase style={styles.code}>{code || 'Waiting for code...'}</TextBase>
-          {link !== '' && (
-            <>
-              <View style={styles.qrContainer}>
-                <QRCode value={link} size={200} />
-              </View>
-              <DefaultButton text="Copy Link" onPress={() => Clipboard.setStringAsync(link)} />
-            </>
-          )}
+      <View style={{flexDirection: "column", rowGap: 24}}>
+        <View style={{alignItems: "center"}}>
+          <View style={[styles.hostCard, {borderColor: "#fff"}]}>
+            <TextBase style={styles.label}>Share this code with friends:</TextBase>
+            <TextBase style={styles.code}>{code || 'Waiting for code...'}</TextBase>
+            {link !== '' && (
+              <>
+                <View style={styles.qrContainer}>
+                  <QRCode value={link} size={200} />
+                </View>
+                <DefaultButton text="Copy Link" onPress={() => Clipboard.setStringAsync(link)} />
+              </>
+            )}
+          </View>
         </View>
       </View>
       {isLandscape && (
-        <View style={styles.playerListContainer}>
-          <TextBase style={{ fontSize: 72 }}>PLAYERS</TextBase>
+        <View style={[cardStyles.card]}>
+          <TextBase style={cardStyles.title}>Players</TextBase>
           <View>
             {players.length === 0 ? (
-              <TextBase>No players have joined yet.</TextBase>
+              <TextBase style={cardStyles.description}>No players have joined yet.</TextBase>
             ) : (
               <FlatList
                 data={players}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({ item }) => (
-                  <TextBase>{item.name}</TextBase>
+                  <TextBase style={cardStyles.description}>{item.name}</TextBase>
                 )}
                 scrollEnabled={players.length > 5}
                 contentContainerStyle={{ flexGrow: 0, rowGap: 10 }}
@@ -98,10 +101,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: 300,
     paddingVertical: 20
-  },
-  playerListContainer: {
-    flex: 1,
-    rowGap: 24
   },
   label: {
     fontSize: 16,

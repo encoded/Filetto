@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import ButtonBase from '@components/base/ButtonBase';
+import TextButton from '@components/base/TextButton';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import MenuScreen from '@src/screens/MenuScreen';
@@ -21,7 +21,7 @@ const Header = ({ navigation }) => {
       paddingLeft: SPACING.paddingHorizontal,
       marginTop: getMarginTop()
     }}>
-      <ButtonBase
+      <TextButton
         text={"Back"}
         onPress={() => navigation.goBack()}
       />

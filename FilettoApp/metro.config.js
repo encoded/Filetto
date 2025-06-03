@@ -6,8 +6,15 @@ module.exports = (async () => {
 
     const {transformer, resolver} = config;
 
+    config.transformer = {
+        ...transformer,
+        babelTransformerPath: require.resolve('react-native-svg-transformer'),
+    };
     config.resolver = {
         ...resolver,
+        assetExts: resolver.assetExts.filter(ext => ext !== 'svg'),
+        sourceExts: [...resolver.sourceExts, 'svg'],
+        resolverMainFields: ['sbmodern', 'react-native', 'browser', 'main'],
         extraNodeModules: {
             shared: path.resolve(__dirname, '../shared'),
         },

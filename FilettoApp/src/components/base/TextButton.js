@@ -1,23 +1,24 @@
 import React from "react";
 import { TouchableOpacity, StyleSheet } from "react-native";
+import TextBase from "./TextBase";
 
 /*
-  Base component for button components.
-  Use this to change the global button styling.
+  Base component for text button components.
 */
-const ButtonBase = ({ style, children, ...props}) => {
+const TextButton = ({ text, textStyle, style, ...props }) => {
   return (
     <TouchableOpacity style={[styles.button, style]} {...props}>
-      {children}
+      <TextBase style={textStyle}>{text}</TextBase>
     </TouchableOpacity>
   );
 };
 
+
 const styles = StyleSheet.create({
   button: {
-    alignItems: "center",
     justifyContent: "center",
-  }
+    alignItems: "center",
+  },
 });
 
-export default ButtonBase;
+export default TextButton;

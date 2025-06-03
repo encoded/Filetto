@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import ButtonBase from '@components/base/ButtonBase';
+import TextButton from '@components/base/TextButton';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import MenuScreen from '@src/screens/MenuScreen';
@@ -9,14 +9,11 @@ import GameScreen from '@src/screens/GameScreen';
 import { NAVIGATION } from '@config/ConfigNavigation';
 import SPACING, { getMarginTop } from '@config/ConfigSpacing';
 import JoinScreen from '@src/screens/JoinScreen';
-import JoinOnlineScreen from '@src/screens/PlayOnlineScreen';
-import JoinLocalScreen from '@src/screens/PlayLocalScreen';
 import JoinFromLinkScreen from '@src/screens/JoinFromLinkScreen';
-import PlayOnlineScreen from '@src/screens/PlayOnlineScreen';
-import PlayLocalScreen from '@src/screens/PlayLocalScreen';
-import LocalHostGameScreen from '@src/screens/LocalHostGameScreen';
-import LocalJoinGameScreen from '@src/screens/LocalJoinGameScreen';
+import FindRoomScreen from '@src/screens/FindRoomScreen';
+import RoomSetupScreen from '@src/screens/RoomSetupScreen';
 import HostGameScreen from '@src/screens/HostGameScreen';
+import CreateRoomScreen from '@src/screens/CreateRoomScreen';
 
 const Stack = createStackNavigator();
 
@@ -32,7 +29,7 @@ const Header = ({ navigation }) => {
       paddingLeft: SPACING.paddingHorizontal,
       marginTop: getMarginTop()
     }}>
-      <ButtonBase
+      <TextButton
         text={"Back"}
         onPress={() => navigation.goBack()}
       />
@@ -51,29 +48,22 @@ const MenuStack = () => {
         }}
       />
       <Stack.Screen 
-        name={NAVIGATION.SCREENS.PLAY_ONLINE}
-        component={PlayOnlineScreen} 
+        name={NAVIGATION.SCREENS.FIND_ROOM}
+        component={FindRoomScreen} 
         options={({ navigation }) => ({
           header: () => <Header navigation={navigation} />,  // Custom header component
         })}
       />
       <Stack.Screen 
-        name={NAVIGATION.SCREENS.PLAY_LOCAL}
-        component={PlayLocalScreen} 
+        name={NAVIGATION.SCREENS.CREATE_ROOM}
+        component={CreateRoomScreen} 
         options={({ navigation }) => ({
           header: () => <Header navigation={navigation} />,  // Custom header component
         })}
       />
       <Stack.Screen 
-        name={NAVIGATION.SCREENS.LOCAL_HOST_GAME}
-        component={LocalHostGameScreen} 
-        options={({ navigation }) => ({
-          header: () => <Header navigation={navigation} />,  // Custom header component
-        })}
-      />
-      <Stack.Screen 
-        name={NAVIGATION.SCREENS.LOCAL_JOIN_GAME}
-        component={LocalJoinGameScreen} 
+        name={NAVIGATION.SCREENS.ROOM_SETUP}
+        component={RoomSetupScreen} 
         options={({ navigation }) => ({
           header: () => <Header navigation={navigation} />,  // Custom header component
         })}

@@ -1,19 +1,23 @@
 import React from "react";
 import { StyleSheet } from "react-native";
-import ButtonBase from "@components/base/ButtonBase";
 import COLORS from "@src/config/ConfigColors";
+import HoverableButton from "@src/components/base/HoverableButton";
+import TextBase from "@src/components/base/TextBase";
 
 /*
   Default button component
 */
-const DefaultButton = ({style, textStyle, disabled, ...props}) => {
+const DefaultButton = ({text, style, textStyle, disabled, ...props}) => {
   return (
-    <ButtonBase
+    <HoverableButton 
       style={[styles.button, disabled && styles.buttonDisabled, style]}
-      textStyle={[styles.buttonText, textStyle]}
       disabled={disabled}
       {...props}
-    />
+    >
+      <TextBase style={[styles.buttonText, textStyle]}>
+        {text}
+      </TextBase>
+    </HoverableButton>
   );
 };
 
@@ -23,12 +27,15 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,
+    borderWidth: 2
   },
   buttonDisabled: {
     backgroundColor: COLORS.buttonDisabled,
   },
   buttonText: {
     fontSize: 18,
+    color: "#000",
+    fontWeight: "bold"
   },
 });
 
