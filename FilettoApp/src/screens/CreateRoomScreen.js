@@ -37,7 +37,7 @@ export default function CreateRoomScreen() {
   }, [playMode]);
 
   const handleStart = () => {
-    navigation.navigate(NAVIGATION.SCREENS.ROOM_SETUP);
+    navigation.navigate(NAVIGATION.SCREENS.ROOM);
   };
 
   return (

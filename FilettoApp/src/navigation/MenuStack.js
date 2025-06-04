@@ -11,7 +11,7 @@ import SPACING, { getMarginTop } from '@config/ConfigSpacing';
 import JoinScreen from '@src/screens/JoinScreen';
 import JoinFromLinkScreen from '@src/screens/JoinFromLinkScreen';
 import FindRoomScreen from '@src/screens/FindRoomScreen';
-import RoomSetupScreen from '@src/screens/RoomSetupScreen';
+import RoomScreen from '@src/screens/RoomScreen';
 import HostGameScreen from '@src/screens/HostGameScreen';
 import CreateRoomScreen from '@src/screens/CreateRoomScreen';
 
@@ -62,8 +62,8 @@ const MenuStack = () => {
         })}
       />
       <Stack.Screen 
-        name={NAVIGATION.SCREENS.ROOM_SETUP}
-        component={RoomSetupScreen} 
+        name={NAVIGATION.SCREENS.ROOM}
+        component={RoomScreen} 
         options={({ navigation }) => ({
           header: () => <Header navigation={navigation} />,  // Custom header component
         })}

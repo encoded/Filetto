@@ -15,7 +15,7 @@ import { useOrientation } from '@src/context/OrientationContext';
 import cardStyles from '@src/styles/cardStyles';
 
 
-export default function RoomSetupScreen() {
+export default function RoomScreen() {
   const navigation = useNavigation();
   const { isLandscape } = useOrientation();
   const { sendMessage, addMessageListener } = useClient();

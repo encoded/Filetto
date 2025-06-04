@@ -24,6 +24,12 @@ class RoomEnabledGameServer extends GameServer {
       return;
     }
 
+    if (data.type === CLIENT_TO_SERVER.FIND_RANDOM_ROOM) {
+      ws.send(JSON.stringify({ type: SERVER_TO_CLIENT.SEARCHING_FOR_ROOM }));
+      this.roomManager.addPlayerSearchingForRoom(ws);
+      return;
+    }
+
     if (data.type === CLIENT_TO_SERVER.JOIN_ROOM) {
       const { roomName } = data;
       const room = this.roomManager.getOrCreateRoom(roomName);
@@ -50,6 +56,7 @@ class RoomEnabledGameServer extends GameServer {
       room.removeClient(ws);
     }
     this.clientRooms.delete(ws);
+    this.roomManager.removePlayerSearchingForRoom(ws);
   }
 }
 

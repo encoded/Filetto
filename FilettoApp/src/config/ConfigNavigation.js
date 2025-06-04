@@ -4,7 +4,7 @@ const NAVIGATION = {
     MENU: "MenuScreen",
     CREATE_ROOM: "CreateRoomScreen",
     FIND_ROOM: "FindRoomScreen",
-    ROOM_SETUP: "RoomSetupScreen",
+    ROOM: "RoomScreen",
     JOIN_FROM_LINK: "JoinFromLinkScreen",
     JOIN: "JoinScreen",
     GAME: "GameScreen",
