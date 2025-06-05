@@ -27,10 +27,10 @@ export default function CreateRoomScreen() {
     const unsubscribe = addMessageListener((data) => {
       if (data.type === SERVER_TO_CLIENT.ROOM_CREATED) {
         if(data.mode === PLAY_MODES.PRESENTER) {
-          navigation.replace(NAVIGATION.SCREENS.ROOM);
+          navigation.navigate(NAVIGATION.SCREENS.ROOM);
         }
         else {
-          navigation.replace(NAVIGATION.SCREENS.JOIN, {
+          navigation.navigate(NAVIGATION.SCREENS.JOIN, {
             roomCode: data.roomName,
             isOwner: true,
             mode: playMode.toLowerCase()
