@@ -13,9 +13,20 @@ import GameBoard from '@src/game/GameBoard';
 import GameStatusText from '@src/game/GameStatusText';
 
 export default function GameScreen({ route }) {
-  const { board: initialBoard, currentTurn: initialTurn } = route.params;
   const { addMessageListener, sendMessage } = useClient();
-  const { players, playerSymbol, opponentName } = useGame();
+  const { players, playerId } = useGame();
+  const { board: initialBoard, currentTurn: initialTurn, playersData } = route.params;
+
+  // Only try to find players after we have playerId
+  const thisPlayer = playersData.find(p => p.id === playerId);
+  const otherPlayer = playersData.find(p => p.id !== playerId);
+
+  if (!thisPlayer || !otherPlayer) {
+    console.warn("Player(s) not found", { thisPlayer, otherPlayer, playerId, playersData });
+  }
+
+  const playerSymbol = thisPlayer.symbol;
+  const opponentName = otherPlayer.name;
 
   const [board, setBoard] = useState(initialBoard);
   const [currentTurn, setCurrentTurn] = useState(initialTurn);
@@ -35,8 +46,6 @@ export default function GameScreen({ route }) {
 
   useEffect(() => {
     const unsubscribe = addMessageListener((data) => {
-      const opponent = players?.find(p => p.symbol !== playerSymbol);
-
       switch (data.type) {
         case SERVER_TO_ALL.MOVE_MADE:
           setQuizActive(false);
@@ -65,7 +74,7 @@ export default function GameScreen({ route }) {
 
         case SERVER_TO_ALL.READY_STATUS:
           const opponentIsReady = data.players?.find(
-            p => p.symbol === opponent?.symbol && p.ready
+            p => p.id !== otherPlayer.id && p.ready
           );
           setOpponentReady(!!opponentIsReady);
           break;
@@ -91,7 +100,7 @@ export default function GameScreen({ route }) {
     });
 
     return unsubscribe;
-  }, [addMessageListener, playerSymbol, players]);
+  }, [addMessageListener, players, playerId]);
 
   const handlePress = (row, col) => {
     if (!isMyTurn || result || quizActive) return;
@@ -187,5 +196,6 @@ const styles = StyleSheet.create({
     marginTop: 12,
     fontSize: 16,
     textAlign: 'center',
+    color: COLORS.textSecondary
   },
 });

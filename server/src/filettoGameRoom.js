@@ -1,4 +1,5 @@
 const FilettoGame = require('@shared/filettoGame');
+const BaseGameRoom = require('./baseGameRoom');
 const {
   CLIENT_TO_SERVER,
   SERVER_TO_CLIENT,
@@ -8,54 +9,22 @@ const {
 const QuizManager = require('./quizManager');
 const { fetchQuiz } = require('./quizProvider');
 
-class FilettoGameRoom {
-  constructor({ onEmpty } = {}) {
-    this.players = [];
-    this.hosts = [];
+class FilettoGameRoom extends BaseGameRoom {
+  constructor(options) {
+    super(options);
     this.game = new FilettoGame();
-    this.gameStarted = false;
-
     this.quizManager = null;
     this.quizMode = false;
     this.pendingMove = null;
-
-    this.onEmpty = onEmpty;
   }
 
-  addHost(ws) {
-    if (!this.hosts.includes(ws)) {
-      this.hosts.push(ws);
-    }
+  getMaxPlayers() {
+    return 2;
   }
 
-  addClient(ws) {
-    if (this.players.length >= 2) {
-      ws.send(JSON.stringify({ type: SERVER_TO_CLIENT.ROOM_FULL }));
-      ws.close();
-      return;
-    }
-
-    ws.send(JSON.stringify({ type: SERVER_TO_CLIENT.WAITING_FOR_NAME }));
-  }
-
-  removeClient(ws) {
-    const wasPlayer = this.players.find(p => p.ws === ws);
-    const wasHostIndex = this.hosts.indexOf(ws);
-
-    if (wasPlayer) {
-      this.players = this.players.filter(p => p.ws !== ws);
-      this.broadcastMessage({ type: SERVER_TO_ALL.PLAYER_LEFT });
-    }
-
-    if (wasHostIndex !== -1) {
-      this.hosts.splice(wasHostIndex, 1);
-    }
-
-    if (this.players.length === 0 && typeof this.onEmpty === 'function') {
-      this.onEmpty();
-    }
-
-    this.resetGame();
+  createPlayer(ws, name, id) {
+    const symbol = this.players.length === 0 ? 'X' : 'O';
+    return { ws, name, id, ready: false, symbol };
   }
 
   handleMessage(ws, data) {
@@ -71,37 +40,16 @@ class FilettoGameRoom {
         break;
       case CLIENT_TO_SERVER.SUBMIT_ANSWER:
         if (this.quizManager) {
-          this.quizManager.receiveAnswer(ws, data.selectedIndex);
+          this.quizManager.handleAnswer(ws, data.selectedIndex);
+        }
+        break;
+      case CLIENT_TO_SERVER.START_GAME:
+        if (this.isOwner(ws)) {
+          this.startGame();
         }
         break;
       default:
         console.warn('Unknown message type:', data.type);
-    }
-  }
-
-  handleJoin(ws, name) {
-    if (this.players.find(p => p.ws === ws)) return;
-
-    if (this.players.find(p => p.name === name)) {
-      ws.send(JSON.stringify({ type: SERVER_TO_CLIENT.JOIN_ERROR, message: 'Name already taken' }));
-      return;
-    }
-
-    const symbol = this.players.length === 0 ? 'X' : 'O';
-    const player = { ws, name, ready: false, symbol };
-    this.players.push(player);
-
-    ws.send(JSON.stringify({
-      type: SERVER_TO_CLIENT.JOIN_SUCCESS,
-      symbol,
-      name,
-    }));
-
-    if (this.players.length === 2) {
-      this.broadcastMessage({
-        type: SERVER_TO_ALL.WAITING_FOR_READY,
-        players: this.players.map(p => ({ name: p.name, ready: p.ready, symbol: p.symbol })),
-      });
     }
   }
 
@@ -110,14 +58,14 @@ class FilettoGameRoom {
     if (!player) return;
 
     player.ready = true;
+    this.broadcastPlayerStatus();
 
-    this.broadcastMessage({
-      type: SERVER_TO_ALL.READY_STATUS,
-      players: this.players.map(p => ({ name: p.name, ready: p.ready, symbol: p.symbol })),
-    });
-
-    if (this.players.length === 2 && this.players.every(p => p.ready)) {
-      this.startGame();
+    //if we have no owner, 
+    // we start the game when reaching the max number of players only if all players are ready
+    if (!this.owner) {
+      if (this.players.length === this.getMaxPlayers() && this.players.every(p => p.ready)) {
+        this.startGame();
+      }
     }
   }
 
@@ -131,7 +79,11 @@ class FilettoGameRoom {
       type: SERVER_TO_ALL.GAME_START,
       board: this.game.getBoard(),
       currentTurn: currentSymbol,
-      players: this.players,
+      playersData: this.players.map(p => ({
+        id: p.id,
+        name: p.name,
+        symbol: p.symbol,
+      }))
     });
   }
 
@@ -243,34 +195,20 @@ class FilettoGameRoom {
   resetGame() {
     this.gameStarted = false;
     this.game.reset();
+    this.quizMode = false;
+    this.quizManager = null;
+    this.pendingMove = null;
     this.players.forEach(p => p.ready = false);
+    this.broadcastPlayerStatus();
+  }
 
+  forceEndGame() {
     this.broadcastMessage({
-      type: SERVER_TO_ALL.READY_STATUS,
-      players: this.players.map(p => ({ name: p.name, ready: p.ready, symbol: p.symbol })),
+      type: SERVER_TO_ALL.GAME_END,
+      result: 'draw',
+      board: this.game.getBoard(),
     });
-  }
-
-  broadcastMessage(msgObj) {
-    const message = JSON.stringify(msgObj);
-
-    const allConnections = [
-      ...this.players.map(p => p.ws),
-      ...this.hosts
-    ];
-
-    for (const ws of allConnections) {
-      if (ws.readyState === ws.OPEN) {
-        ws.send(message);
-      }
-    }
-  }
-
-  getAllSockets() {
-    return [
-      ...this.players.map(p => p.ws),
-      ...this.hosts
-    ];
+    this.resetGame();
   }
 }
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import LayoutScreen from './LayoutScreen';
 import TextBase from '@src/components/base/TextBase';
@@ -12,18 +12,33 @@ import GameIcon from "@assets/icons/game.svg";
 import TextInputBase from '@src/components/base/TextInputBase';
 
 import COLORS from '@src/config/ConfigColors';
-import { CLIENT_TO_SERVER } from '@shared/messages'
+import { CLIENT_TO_SERVER, SERVER_TO_CLIENT } from '@shared/messages'
 import HoverableButton from '@src/components/base/HoverableButton';
 
 export default function MenuScreen({ navigation }) {
   const { isLandscape } = useOrientation();
-  const { sendMessage} = useClient();
+  const { sendMessage, addMessageListener } = useClient();
   const [roomName, setRoomName] = useState('');
+  const [showError, setShowError] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = addMessageListener((data) => {
+      if (data.type === SERVER_TO_CLIENT.ROOM_FOUND) {
+        if (!data.found) {
+          setShowError(true);
+        } else {
+          navigation.navigate(NAVIGATION.SCREENS.JOIN);
+        }
+      }
+    });
+
+    return unsubscribe;
+  }, []);
 
   const handleJoinRoom = () => {
     if (roomName.trim()) {
-      sendMessage({ type: CLIENT_TO_SERVER.JOIN_ROOM, roomName: roomName.trim() });
-      navigation.navigate(NAVIGATION.SCREENS.JOIN);
+      setShowError(false);  // Clear any previous error
+      sendMessage({ type: CLIENT_TO_SERVER.ENTER_ROOM, roomName: roomName.trim() });
     }
   };
 
@@ -67,14 +82,22 @@ export default function MenuScreen({ navigation }) {
             style={styles.input}
             placeholder="Write the room ID here"
             value={roomName}
-            onChangeText={setRoomName}
+            onFocus={() => {
+              setRoomName('');
+              setShowError(false);
+            }}
+            onChangeText={(text) => {
+              setRoomName(text);
+            }}
           />
           <ButtonBase style={[styles.button, {backgroundColor: COLORS.special}]} onPress={handleJoinRoom}>
             <Text style={styles.buttonText}>GO</Text>
           </ButtonBase>
         </View>
-      
-    </View>
+        <TextBase style={[styles.errorMessage, {opacity: showError ? 1 : 0, color: COLORS.error}]}>
+          Room not found
+        </TextBase>
+      </View>
     </LayoutScreen>
   );
 }
@@ -116,21 +139,22 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 48,
     marginBottom: 16,
-    fontWeight: "bold"
+    fontWeight: "bold",
+    color: COLORS.textSecondary
   },
   inputContainer: {
-    width: "100%",
-    marginBottom: 20,
+    marginBottom: 8,
+    flexDirection: 'row',
+    position: 'relative',
   },
   input: {
-    width: "100%",
     height: 50,
     borderWidth: 2,
     borderColor: "#000",
     borderRadius: 8,
     paddingHorizontal: 15,
     fontSize: 16,
-    marginRight: 100,
+    paddingRight: 80,
     backgroundColor: "#fff",
     color: "#000"
   },
@@ -149,4 +173,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold"
   },
+  errorMessage: {
+    color: COLORS.error,
+    marginTop: 8,
+    fontSize: 14
+  }
 });

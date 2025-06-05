@@ -2,8 +2,6 @@ import { StyleSheet } from 'react-native';
 
 const cardStyles = StyleSheet.create({
   card: {
-    width: 300,
-    height: 200,
     padding: 24,
     borderRadius: 20,
     backgroundColor: '#fff',
@@ -21,6 +19,7 @@ const cardStyles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'center',
     color: "#000",
+    maxWidth: 300,
   },
 });
 

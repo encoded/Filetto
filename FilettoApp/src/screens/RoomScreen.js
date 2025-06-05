@@ -13,37 +13,77 @@ import LayoutScreen from './LayoutScreen';
 import { useNavigation } from '@react-navigation/native';
 import { useOrientation } from '@src/context/OrientationContext';
 import cardStyles from '@src/styles/cardStyles';
+import COLORS from '@src/config/ConfigColors';
 
-
-export default function RoomScreen() {
+export default function RoomScreen({ route }) {
   const navigation = useNavigation();
   const { isLandscape } = useOrientation();
   const { sendMessage, addMessageListener } = useClient();
-  const { players, playerSymbol, opponentName } = useGame();
+  const { players, isOwner, mode, roomName: roomCode } = useGame();
   const [code, setCode] = useState('');
   const [link, setLink] = useState('');
 
   useEffect(() => {
+    if(isOwner) {
+      const newLink = `${APP_ROOT}/join-from-link?room=${roomCode}`;
+      setCode(roomCode);
+      setLink(newLink);
+    }
+  }, []);
+
+  useEffect(() => {
     const unsubscribe = addMessageListener((data) => {
-      if (data.type === SERVER_TO_CLIENT.ROOM_CREATED) {
-        const newLink = `${APP_ROOT}/join-from-link?room=${data.roomName}`;
-        setCode(data.roomName);
-        setLink(newLink);
-      }
-      else if (data.type === SERVER_TO_ALL.GAME_START) {
-        navigation.navigate( NAVIGATION.SCREENS.HOST_GAME, {
+      if (data.type === SERVER_TO_ALL.GAME_START) {
+        navigation.navigate(mode === 'presenter' ? NAVIGATION.SCREENS.HOST_GAME : NAVIGATION.SCREENS.GAME, {
           board: data.board,
-          currentTurn: data.currentTurn
+          currentTurn: data.currentTurn,
+          playersData: data.playersData
         });
       }
     });
 
     return unsubscribe;
-  }, []);
+  }, [mode]);
 
-  useEffect(() => {
-    sendMessage({ type: CLIENT_TO_SERVER.CREATE_LOCAL_ROOM });
-  }, []);
+  const handleStartGame = () => {
+    sendMessage({ type: CLIENT_TO_SERVER.START_GAME });
+  };
+
+  if (!isOwner) {
+    return (
+      <LayoutScreen>
+        <View style={[cardStyles.card, { alignItems: 'center' }]}>
+          <TextBase style={cardStyles.title}>Waiting for game to start...</TextBase>
+          <TextBase style={cardStyles.description}>The room owner will start the game when all players are ready.</TextBase>
+          {players.length > 0 && (
+            <View style={styles.playersContainer}>
+              <TextBase style={styles.playersTitle}>Players in room:</TextBase>
+              <FlatList
+                data={players}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({ item }) => (
+                  <TextBase style={styles.playerName}>{item.name}</TextBase>
+                )}
+                scrollEnabled={players.length > 5}
+                contentContainerStyle={{ flexGrow: 0, rowGap: 10 }}
+              />
+            </View>
+          )}
+        </View>
+      </LayoutScreen>
+    );
+  }
+
+  const renderStartButton = () => {
+    return (
+      <DefaultButton 
+        text="Start Game" 
+        onPress={handleStartGame}
+        style={styles.startButton}
+        disabled={players.length < 2}
+      />
+    );
+  };
 
   return (
     <LayoutScreen style={styles.hostContainer}>
@@ -62,8 +102,10 @@ export default function RoomScreen() {
             )}
           </View>
         </View>
+        {!isLandscape && renderStartButton()}
       </View>
       {isLandscape && (
+      <View style={{flexDirection: "column", rowGap: 24}}> 
         <View style={[cardStyles.card]}>
           <TextBase style={cardStyles.title}>Players</TextBase>
           <View>
@@ -82,6 +124,10 @@ export default function RoomScreen() {
             )}
           </View>
         </View>
+        <View style={{alignItems: "center"}}>
+          {renderStartButton()}
+        </View>
+      </View>  
       )}
     </LayoutScreen>
   );
@@ -100,15 +146,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     width: 300,
-    paddingVertical: 20
+    paddingVertical: 20,
   },
   label: {
     fontSize: 16,
+    color: COLORS.textSecondary
   },
   code: {
     fontSize: 28,
     fontWeight: 'bold',
     marginVertical: 10,
+    color: COLORS.textSecondary
   },
   qrContainer: {
     marginTop: 20,
@@ -116,4 +164,20 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 8,
   },
+  startButton: {
+    width: 300,
+    alignSelf: 'center'
+  },
+  playersContainer: {
+    marginTop: 20,
+    width: '100%',
+    alignItems: 'center'
+  },
+  playersTitle: {
+    marginBottom: 10,
+    fontWeight: '600',
+  },
+  playerName: {
+    fontSize: 16
+  }
 });

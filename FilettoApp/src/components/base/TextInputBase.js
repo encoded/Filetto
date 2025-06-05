@@ -19,7 +19,7 @@ const TextInputBase = (props) => {
 
 const styles = StyleSheet.create({
   input: {
-    width: '100%', 
+    minWidth: '100%', 
     height: 50, 
     borderColor: '#ccc',
     borderWidth: 1, 

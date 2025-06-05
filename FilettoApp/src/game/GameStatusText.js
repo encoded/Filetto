@@ -1,5 +1,6 @@
 import React from 'react';
 import TextBase from '@components/base/TextBase';
+import COLORS from '@src/config/ConfigColors';
 
 export default function GameStatusText({
   result,
@@ -23,7 +24,7 @@ export default function GameStatusText({
   };
 
   return (
-    <TextBase style={{ fontSize: 24, textAlign: 'center' }}>
+    <TextBase style={{ fontSize: 24, textAlign: 'center', color: COLORS.textSecondary }}>
       {getStatus()}
     </TextBase>
   );

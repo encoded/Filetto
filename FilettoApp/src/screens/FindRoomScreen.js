@@ -9,23 +9,19 @@ import LayoutScreen from './LayoutScreen';
 import { NAVIGATION } from '@src/config/ConfigNavigation';
 import COLORS from '@src/config/ConfigColors';
 
-/*
-  Temp - find room
-*/
 const FindRoomScreen = () => {
   const navigation = useNavigation();
   const { sendMessage, addMessageListener } = useClient();
 
   useEffect(() => {
-    // Start searching for a room
+    // Start searching immediately
     sendMessage({ type: CLIENT_TO_SERVER.FIND_RANDOM_ROOM });
 
-    // Listen for server responses
     const unsubscribe = addMessageListener((data) => {
       if (data.type === SERVER_TO_CLIENT.ROOM_FOUND) {
-        // When a room is found, join it
-        sendMessage({ type: CLIENT_TO_SERVER.JOIN_ROOM, roomName: data.roomName });
-        navigation.replace(NAVIGATION.SCREENS.JOIN);
+        navigation.replace(NAVIGATION.SCREENS.JOIN, {
+          roomCode: data.roomName
+        });
       }
     });
 
@@ -49,11 +45,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 20
   },
   text: {
+    marginTop: 20,
     fontSize: 18,
-    textAlign: 'center'
+    textAlign: 'center',
+    color: COLORS.textSecondary
   }
 });
 

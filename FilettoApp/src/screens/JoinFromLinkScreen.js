@@ -14,7 +14,7 @@ const JoinFromLinkScreen = () => {
   useEffect(() => {
     const roomCode = route.params?.room;
     if (roomCode) {
-      sendMessage({ type: CLIENT_TO_SERVER.JOIN_ROOM, roomName: roomCode });
+      sendMessage({ type: CLIENT_TO_SERVER.ENTER_ROOM, roomName: roomCode });
       navigation.replace(NAVIGATION.SCREENS.JOIN); // `replace` to remove this screen from history
     }
   }, [route.params]);

@@ -46,7 +46,7 @@ class QuizManager {
     this.timer = setTimeout(() => this.endQuestion(), this.timePerQuestion * 1000);
   }
 
-  receiveAnswer(ws, selectedIndex) {
+  handleAnswer(ws, selectedIndex) {
     if (ws !== this.player) return; // only accept answer from our single player
     if (!this.isQuestionActive || this.answerReceived) return;
 

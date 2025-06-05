@@ -9,14 +9,12 @@ export function GameProvider({ children }) {
 
   const [isJoined, setIsJoined] = useState(false);
   const [gameReady, setGameReady] = useState(false);
-  const [playerSymbol, setPlayerSymbol] = useState(null);
   const [players, setPlayers] = useState([]);
-  const [opponentName, setOpponentName] = useState("Opponent");
-
-  useEffect(() => {
-    const name = players?.find(p => p.symbol !== playerSymbol)?.name;
-    setOpponentName(name);
-  }, [players]);
+  const [isOwner, setIsOwner] = useState(false);
+  const [playMode, setPlayMode] = useState(null);
+  const [settings, setSettings] = useState({});
+  const [playerId, setPlayerId] = useState(null); // id of this player
+  const [roomName, setRoomName] = useState(null);
 
   useEffect(() => {
     if (!isConnected) return;
@@ -25,20 +23,35 @@ export function GameProvider({ children }) {
       switch (data.type) {
         case SERVER_TO_CLIENT.JOIN_SUCCESS:
           setIsJoined(true);
-          setPlayerSymbol(data.symbol); // ✅ use data from callback
+          setPlayerId(data.playerId);
+          setIsOwner(data.isOwner);
+          setPlayMode(data.mode);
+          setSettings(data.settings);
+          setRoomName(data.roomName);
           sendMessage({ type: CLIENT_TO_SERVER.READY });
+          break;
+
+        case SERVER_TO_CLIENT.ROOM_CREATED:
+          setIsJoined(true);
+          setIsOwner(data.isOwner);
+          setPlayMode(data.mode);
+          setRoomName(data.roomName);
           break;
 
         case SERVER_TO_ALL.READY_STATUS:
           setGameReady(data.players.every(player => player.ready));
           setPlayers(data.players);
+          setSettings(data.settings);
           break;
 
         case SERVER_TO_ALL.PLAYER_LEFT:
-          setIsJoined(false);
+          if (data.isOwner) {
+            setIsOwner(true);
+          }
+          break;
+
+        case SERVER_TO_ALL.GAME_END:
           setGameReady(false);
-          setPlayerSymbol(null);
-          setPlayers([]);
           break;
 
         default:
@@ -49,11 +62,35 @@ export function GameProvider({ children }) {
     return unsubscribe;
   }, [isConnected, sendMessage, addMessageListener]);
 
+  const updateSettings = (newSettings) => {
+    if (!isOwner) return;
+    sendMessage({ 
+      type: CLIENT_TO_SERVER.UPDATE_SETTINGS,
+      settings: newSettings
+    });
+  };
+
   return (
-    <GameContext.Provider value={{ isJoined, playerSymbol, players, opponentName, gameReady }}>
+    <GameContext.Provider value={{ 
+      isJoined, 
+      playerId,
+      players,
+      gameReady,
+      isOwner,
+      playMode,
+      settings,
+      updateSettings,
+      roomName
+    }}>
       {children}
     </GameContext.Provider>
   );
 }
 
-export const useGame = () => useContext(GameContext);
+export function useGame() {
+  const context = useContext(GameContext);
+  if (!context) {
+    throw new Error('useGame must be used within a GameProvider');
+  }
+  return context;
+}

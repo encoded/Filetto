@@ -9,6 +9,8 @@ import TabSelector from '@src/components/base/TabSelector';
 import cardStyles from '@src/styles/cardStyles';
 import { useNavigation } from '@react-navigation/native';
 import { NAVIGATION } from '@src/config/ConfigNavigation';
+import { useClient } from '@src/context/ClientContext';
+import { CLIENT_TO_SERVER, SERVER_TO_CLIENT } from '@shared/messages';
 
 const PLAY_MODES = {
   PRESENTER: "Presenter",
@@ -17,12 +19,31 @@ const PLAY_MODES = {
 
 export default function CreateRoomScreen() {
   const navigation = useNavigation();
+  const { sendMessage, addMessageListener } = useClient();
   const [playMode, setPlayMode] = useState(PLAY_MODES.PRESENTER);
   const [description, setDescription] = useState("");
 
-  useEffect(()=>{
+  useEffect(() => {
+    const unsubscribe = addMessageListener((data) => {
+      if (data.type === SERVER_TO_CLIENT.ROOM_CREATED) {
+        if(data.mode === PLAY_MODES.PRESENTER) {
+          navigation.replace(NAVIGATION.SCREENS.ROOM);
+        }
+        else {
+          navigation.replace(NAVIGATION.SCREENS.JOIN, {
+            roomCode: data.roomName,
+            isOwner: true,
+            mode: playMode.toLowerCase()
+          });
+        }
+  }});
+
+    return unsubscribe;
+  }, [playMode]);
+
+  useEffect(() => {
     let text = "";
-    switch(playMode){
+    switch(playMode) {
       case PLAY_MODES.PLAYER:
         text = "Use this device as player, no shared screen needed!"
         break;
@@ -37,7 +58,12 @@ export default function CreateRoomScreen() {
   }, [playMode]);
 
   const handleStart = () => {
-    navigation.navigate(NAVIGATION.SCREENS.ROOM);
+    // Create room directly
+    sendMessage({ 
+      type: CLIENT_TO_SERVER.CREATE_ROOM,
+      gameType: 'filetto',
+      mode: playMode
+    });
   };
 
   return (
@@ -55,13 +81,13 @@ export default function CreateRoomScreen() {
           styleTabText={styles.tabText}
           styleTabTextSelected={styles.tabTextSelected}
         />
-        <TextBase style={cardStyles.description}>
+        <TextBase style={[cardStyles.description, {minHeight: 50, minWidth: 300}]}>
           {description}
         </TextBase>
       </View>
       <DefaultButton 
         style={styles.startButton} 
-        text="Start"
+        text="Create Room"
         onPress={handleStart}
       />
     </LayoutScreen>
@@ -70,21 +96,20 @@ export default function CreateRoomScreen() {
 
 const styles = StyleSheet.create({
   tabContainer: {
-    backgroundColor: COLORS.buttonDisabled, 
-    padding: 4
+    flexDirection: 'row',
+    marginVertical: 20,
+    width: 300,
   },
   selectedTab: {
-    backgroundColor: COLORS.special, 
-    borderRadius: 10
+    backgroundColor: COLORS.special,
   },
   tabText: {
-    color: "#000"
+    color: "#000",
   },
   tabTextSelected: {
-    fontWeight: "bold"
+    fontWeight: 'bold',
   },
   startButton: {
-    marginTop: 24,
-    width: 200
+    marginTop: 20,
   }
 });

@@ -10,6 +10,7 @@ export const NetworkContext = createContext();
 export const NetworkProvider = ({ children }) => {
   const [ipAddress, setIpAddress] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
+  const isDev = __DEV__; // This is a global variable in React Native that indicates dev mode
 
   useEffect(() => {
     const fetchNetworkInfo = async () => {
@@ -33,10 +34,13 @@ export const NetworkProvider = ({ children }) => {
     <NetworkContext.Provider value={{ ipAddress, isConnected }}>
       {children}
       {/* Debug View */}
+      {isDev && (
       <View style={[styles.debugContainer, { bottom: getMarginBottom(), left: getMarginBottom()}]}>
         <Text style={styles.debugText}>Connected: {isConnected ? 'Yes' : 'No'}</Text>
-        <Text style={styles.debugText}>IP Address: {ipAddress || 'N/A'}</Text>
-      </View>
+          <Text style={styles.debugText}>IP Address: {ipAddress || 'N/A'}</Text>
+          <Text style={styles.debugText}>Environment: {isDev ? 'Development' : 'Production'}</Text>
+        </View>
+      )}
     </NetworkContext.Provider>
   );
 };

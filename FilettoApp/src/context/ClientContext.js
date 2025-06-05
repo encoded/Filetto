@@ -5,6 +5,7 @@ import TextBase from '@src/components/base/TextBase';
 import { CLIENT_TO_SERVER, SERVER_TO_CLIENT} from '@shared/messages'
 import { sendMessageToServer } from '@src/utils/networkUtils';
 import LayoutScreen from '@src/screens/LayoutScreen';
+import COLORS from '@src/config/ConfigColors';
 
 export const ClientContext = createContext();
 
@@ -30,7 +31,7 @@ export const ClientProvider = ({ children }) => {
     const ws = new WebSocket('wss://filetto.onrender.com');
     
     // To test with local server
-    //const ws = new WebSocket('ws://192.168.0.87:3000');
+    //const ws = new WebSocket('ws://192.168.1.125:3000');
 
     socketRef.current = ws;
 
@@ -72,7 +73,7 @@ export const ClientProvider = ({ children }) => {
     >
       {!isConnected ? (
         <LayoutScreen>
-          <TextBase style={{textAlign: 'center'}}>
+          <TextBase style={{textAlign: 'center', color: COLORS.textSecondary}}>
             Waiting for server connection...{'\n'}This should take only a few seconds.
           </TextBase>
         </LayoutScreen>
