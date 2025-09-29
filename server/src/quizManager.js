@@ -1,7 +1,7 @@
 const { SERVER_TO_ALL } = require('@shared/messages');
 
 class QuizManager {
-  constructor(wss, question = null, player = null, timePerQuestion = 10, onQuestionEnd = null) {
+  constructor(wss, question = null, player = null, timePerQuestion = 30, onQuestionEnd = null) {
     this.wss = wss;
     this.player = player;
     this.question = question;
