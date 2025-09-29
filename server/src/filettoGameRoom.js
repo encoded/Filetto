@@ -107,8 +107,8 @@ class FilettoGameRoom extends BaseGameRoom {
       const params = {
         numQuestions: 1,
         type: 'multiple',
-        difficulty: 'hard',
-        category: 12,
+        difficulty: 'medium',
+        category: 11,
       };
       const question = await fetchQuiz(params);
 
